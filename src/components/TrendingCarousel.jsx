@@ -51,9 +51,11 @@ const CarouselSlot = memo(function CarouselSlot({
   const year = (item.release_date || item.first_air_date || "").slice(0, 4);
   const poster = imgUrl(item.poster_path, "w342");
 
-  const scale = isCenter ? 1 : abs === 1 ? 0.75 : 0.54;
-  const opacity = isCenter ? 1 : abs === 1 ? 0.65 : 0.35;
-  const tx = offset * 230;
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const scale = isCenter ? 1 : abs === 1 ? (isMobile ? 0.76 : 0.75) : 0.54;
+  const opacity = isCenter ? 1 : abs === 1 ? (isMobile ? 0.45 : 0.65) : (isMobile ? 0 : 0.35);
+  const step = isMobile ? 112 : 230;
+  const tx = offset * step;
 
   // Stable date comparison — avoids new Date() on every render by caching today
   const rawDate = item.release_date || item.first_air_date;
