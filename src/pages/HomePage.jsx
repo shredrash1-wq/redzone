@@ -255,6 +255,51 @@ export default function HomePage({
         </div>
       )}
 
+      {!offline && !loading && !hero && trending.length === 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "50vh",
+            gap: 14,
+            padding: "48px 20px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 54,
+              height: 54,
+              borderRadius: "50%",
+              background: "rgba(255, 19, 61, 0.14)",
+              border: "1px solid rgba(255, 19, 61, 0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
+              boxShadow: "0 0 20px rgba(255, 19, 61, 0.25)",
+            }}
+          >
+            🎬
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", letterSpacing: "0.5px" }}>
+            Connecting to Stream Catalog...
+          </div>
+          <p style={{ fontSize: 13, color: "var(--text2)", maxWidth: 360, lineHeight: 1.5 }}>
+            Fetching the latest trending movies and series.
+          </p>
+          <button
+            className="btn btn-primary"
+            style={{ marginTop: 8, padding: "9px 22px", fontSize: 13, fontWeight: 700 }}
+            onClick={onRetry}
+          >
+            Refresh Catalog
+          </button>
+        </div>
+      )}
+
       {/* ── Hero (always first) ── */}
       {!loading && hero && (
         <div className="hero">
