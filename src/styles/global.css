@@ -737,7 +737,7 @@ body.no-anim *::after {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 200;
+    z-index: 5000;
     background: rgba(4, 5, 8, 0.86);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -763,6 +763,10 @@ body.no-anim *::after {
     gap: 14px;
     padding: 18px 22px;
     border-bottom: 1px solid rgba(255, 26, 64, 0.2);
+}
+
+.search-back-btn {
+    display: none;
 }
 
 .search-input-wrap svg {
@@ -4834,6 +4838,18 @@ html[data-win-titlebar][data-maximized] .main {
         user-select: none !important;
     }
 
+    /* Allow keyboard and touch selection on all form inputs and editable elements */
+    input,
+    textarea,
+    select,
+    [contenteditable],
+    .search-input {
+        -webkit-user-select: text !important;
+        user-select: text !important;
+        -webkit-touch-callout: default !important;
+        pointer-events: auto !important;
+    }
+
     #root,
     .app-body-layout {
         position: fixed !important;
@@ -5494,17 +5510,79 @@ html[data-win-titlebar][data-maximized] .main {
     /* ── 13. FULLSCREEN MOBILE SEARCH MODAL ── */
     .modal-overlay {
         padding-top: 0 !important;
+        z-index: 99999 !important;
+        align-items: stretch !important;
     }
 
     .search-box {
         width: 100% !important;
         height: 100% !important;
         max-width: 100vw !important;
-        max-height: 100vh !important;
+        max-height: 100% !important;
         border-radius: 0 !important;
         border: none !important;
         display: flex !important;
         flex-direction: column !important;
+        background: #090c12 !important;
+    }
+
+    .search-input-wrap {
+        display: flex !important;
+        align-items: center !important;
+        padding: max(env(safe-area-inset-top), 14px) 14px 14px !important;
+        gap: 10px !important;
+        background: #0e121b !important;
+        border-bottom: 1px solid rgba(255, 19, 61, 0.35) !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7) !important;
+        flex-shrink: 0 !important;
+    }
+
+    .search-back-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+    }
+
+    .search-back-btn:active {
+        background: rgba(255, 19, 61, 0.3) !important;
+    }
+
+    .search-input {
+        flex: 1 !important;
+        font-size: 16px !important;
+        padding: 6px 4px !important;
+        color: #ffffff !important;
+        background: transparent !important;
+        -webkit-user-select: text !important;
+        user-select: text !important;
+        pointer-events: auto !important;
+    }
+
+    .search-clear-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: none !important;
+        color: #ffffff !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+    }
+
+    .search-close-desktop-btn {
+        display: none !important;
     }
 
     .search-results {

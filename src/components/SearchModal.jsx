@@ -22,6 +22,7 @@ export default function SearchModal({ apiKey, onSelect, onClose, offline }) {
   const inputRef = useRef();
 
   useEffect(() => {
+    inputRef.current?.focus();
     const tid = setTimeout(() => inputRef.current?.focus(), 50);
     return () => clearTimeout(tid);
   }, []);
@@ -114,10 +115,43 @@ export default function SearchModal({ apiKey, onSelect, onClose, offline }) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="search-box">
-        <div className="search-input-wrap">
+        <div
+          className="search-input-wrap"
+          onClick={() => inputRef.current?.focus()}
+        >
+          <button
+            type="button"
+            className="search-back-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Back"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
           <SearchIcon />
           <input
             ref={inputRef}
+            type="search"
+            autoFocus
+            inputMode="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck="false"
             className="search-input"
             placeholder="Search movies and series..."
             value={query}
@@ -126,16 +160,29 @@ export default function SearchModal({ apiKey, onSelect, onClose, offline }) {
           />
           {query ? (
             <button
-              className="btn btn-ghost btn-icon"
-              onClick={() => setQuery("")}
+              type="button"
+              className="btn btn-ghost btn-icon search-clear-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              aria-label="Clear search"
             >
               <CloseIcon />
             </button>
-          ) : (
-            <button className="btn btn-ghost btn-icon" onClick={onClose}>
-              <CloseIcon />
-            </button>
-          )}
+          ) : null}
+          <button
+            type="button"
+            className="btn btn-ghost btn-icon search-close-desktop-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Close"
+          >
+            <CloseIcon />
+          </button>
         </div>
 
         <div className="search-results">
