@@ -1,7 +1,7 @@
 {
-  "name": "streambert",
+  "name": "redzone-mirror",
   "version": "2.6.0",
-  "description": "Streambert Desktop App",
+  "description": "REDZONE MIRROR Desktop App",
   "author": {
     "name": "truelockmc",
     "email": "anonyson@proton.me"
@@ -10,6 +10,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "web": "vite --host 0.0.0.0 --port 5173",
     "dev": "vite build --watch",
     "start": "vite build && electron .",
     "dist": "cross-env ELECTRON_DIST=1 vite build && npm run dist:linux && npm run dist:win && npm run dist:mac",
@@ -33,11 +34,11 @@
     "electron": "^40.4.1",
     "electron-builder": "^26.7.0",
     "terser": "^5.46.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.6"
   },
   "build": {
-    "appId": "com.truelockmc.streambert",
-    "productName": "Streambert",
+    "appId": "com.redzone.mirror",
+    "productName": "REDZONE MIRROR",
     "asar": true,
     "compression": "normal",
     "directories": {
@@ -92,13 +93,14 @@
       "createStartMenuShortcut": true,
       "selectPerMachineByDefault": false,
       "license": "LICENSE",
-      "uninstallDisplayName": "Uninstall Streambert",
+      "uninstallDisplayName": "Uninstall REDZONE MIRROR",
       "installerSidebar": "public/installer-sidebar.bmp"
     },
     "win": {
       "icon": "public/icon.png",
       "target": [
-        "nsis"
+        "nsis",
+        "dir"
       ]
     },
     "mac": {
@@ -158,11 +160,11 @@
       "icon": "public/sized",
       "desktop": {
         "entry": {
-          "Name": "Streambert",
-          "Comment": "Streambert Desktop App",
+          "Name": "REDZONE MIRROR",
+          "Comment": "REDZONE MIRROR Desktop App",
           "Categories": "AudioVideo;Video;Player;Multimedia;Internet;",
           "Icon": "streambert",
-          "StartupWMClass": "Streambert"
+          "StartupWMClass": "REDZONE MIRROR"
         }
       }
     },

@@ -2539,126 +2539,6 @@ const SUPPORTS_HIGHLIGHT =
   typeof CSS !== "undefined" && typeof CSS.highlights !== "undefined";
 const SECTION_NAV = [
   {
-    id: "updates",
-    label: "Updates & API",
-    icon: "↑",
-    keywords: [
-      "update",
-      "version",
-      "tmdb",
-      "api",
-      "token",
-      "key",
-      "check",
-      "startup",
-      "auto",
-      "app",
-      "language",
-      "metadata",
-      "locale",
-      "german",
-      "french",
-      "spanish",
-    ],
-  },
-  {
-    id: "content",
-    label: "Age Rating",
-    icon: "🔞",
-    keywords: [
-      "age",
-      "rating",
-      "parental",
-      "content",
-      "country",
-      "restriction",
-      "pg",
-      "fsk",
-      "adults",
-    ],
-  },
-  {
-    id: "playback",
-    label: "Playback",
-    icon: "▶",
-    keywords: [
-      "invidious",
-      "trailer",
-      "youtube",
-      "threshold",
-      "watched",
-      "playback",
-      "seconds",
-      "mark",
-      "auto-watched",
-      "intro",
-      "skip",
-      "aniskip",
-      "anime",
-      "outro",
-    ],
-  },
-  {
-    id: "subtitles",
-    label: "Subtitles",
-    icon: "CC",
-    keywords: [
-      "subtitle",
-      "subdl",
-      "wyzie",
-      "language",
-      "caption",
-      "srt",
-      "download",
-      "cc",
-    ],
-  },
-  {
-    id: "downloads",
-    label: "Downloads",
-    icon: "⬇",
-    keywords: [
-      "download",
-      "folder",
-      "path",
-      "save",
-      "video",
-      "movies",
-      "files",
-    ],
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    icon: "🔔",
-    keywords: [
-      "notification",
-      "notify",
-      "alert",
-      "desktop",
-      "episode",
-      "download",
-      "watchlist",
-      "new episode",
-      "release",
-    ],
-  },
-  {
-    id: "discordRpc",
-    label: "Discord Rich Presence",
-    icon: "🎮",
-    keywords: [
-      "discord",
-      "rich presence",
-      "rpc",
-      "status",
-      "activity",
-      "watching",
-      "idling",
-      "presence",
-    ],
-  },
-  {
     id: "interface",
     label: "Interface",
     icon: "✦",
@@ -2676,6 +2556,7 @@ const SECTION_NAV = [
       "theme",
       "rows",
       "hero",
+      "controller",
     ],
   },
   {
@@ -2694,7 +2575,7 @@ const SECTION_NAV = [
   },
   {
     id: "backup",
-    label: "Backup",
+    label: "Backup & Restore",
     icon: "💾",
     keywords: [
       "backup",
@@ -3364,26 +3245,12 @@ export default function SettingsPage({
   const [showDeleteDlConfirm, setShowDeleteDlConfirm] = useState(false);
 
   // ── Section refs for navigation ────────────────────────────────────────────
-  const secUpdates = useRef(null);
-  const secContent = useRef(null);
-  const secPlayback = useRef(null);
-  const secSubtitles = useRef(null);
-  const secDownloads = useRef(null);
-  const secNotifications = useRef(null);
-  const secDiscordRpc = useRef(null);
   const secInterface = useRef(null);
   const secLibrary = useRef(null);
   const secBackup = useRef(null);
   const secStorage = useRef(null);
 
   const sectionRefs = {
-    updates: secUpdates,
-    content: secContent,
-    playback: secPlayback,
-    subtitles: secSubtitles,
-    downloads: secDownloads,
-    notifications: secNotifications,
-    discordRpc: secDiscordRpc,
     interface: secInterface,
     library: secLibrary,
     backup: secBackup,
@@ -3636,6 +3503,8 @@ export default function SettingsPage({
           App configuration for Streambert
         </div>
 
+        {false && (
+          <>
         {/* ══════════════════════════════════════════════════════════════════ */}
         {/* GROUP: GENERAL                                                     */}
         {/* ══════════════════════════════════════════════════════════════════ */}
@@ -4301,6 +4170,8 @@ export default function SettingsPage({
           />
           <DiscordRpcSection />
         </div>
+          </>
+        )}
 
         {/* ══════════════════════════════════════════════════════════════════ */}
         {/* GROUP: INTERFACE                                                   */}

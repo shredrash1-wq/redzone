@@ -25,6 +25,8 @@ export default function Sidebar({
   canGoBack,
   onBack,
   onShowShortcuts,
+  user,
+  onLogout,
 }) {
   const [dragOver, setDragOver] = useState(null);
   const dragItem = useRef(null);
@@ -105,7 +107,7 @@ export default function Sidebar({
       <div
         className="sidebar-logo"
         onClick={() => onNavigate("home")}
-        title="Streambert"
+        title="REDZONE MIRROR"
         style={{ position: "relative" }}
       >
         <StreambertLogo />
@@ -228,15 +230,36 @@ export default function Sidebar({
           icon={<SettingsIcon />}
           label="Settings"
         />
-        <button
-          className="sidebar-btn"
-          onClick={() => window.electron?.quitApp?.()}
-          title="Quit App"
-          style={{ color: "#e53e3e", marginTop: 4 }}
-        >
-          <QuitIcon />
-          <span className="tooltip">Quit App</span>
-        </button>
+        {user && (
+          <button
+            className="sidebar-btn"
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Logged in as "${user.username}". Do you want to switch or log out?`,
+                )
+              ) {
+                onLogout?.();
+              }
+            }}
+            title={`Guest: ${user.username} (Click to switch/logout)`}
+            style={{ fontSize: 18 }}
+          >
+            <span>{user.avatar || "👤"}</span>
+            <span className="tooltip">{user.username} (Switch / Log out)</span>
+          </button>
+        )}
+        {window.electron?.quitApp && (
+          <button
+            className="sidebar-btn"
+            onClick={() => window.electron?.quitApp?.()}
+            title="Quit App"
+            style={{ color: "#e53e3e", marginTop: 4 }}
+          >
+            <QuitIcon />
+            <span className="tooltip">Quit App</span>
+          </button>
+        )}
       </div>
     </div>
   );

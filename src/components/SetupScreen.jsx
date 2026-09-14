@@ -121,7 +121,9 @@ export default function SetupScreen({ onSave, onSkip }) {
         <div className="apikey-logo">
           <StreambertLogo />
         </div>
-        <div className="apikey-title">STREAMBERT</div>
+        <div className="apikey-title" style={{ letterSpacing: 4 }}>
+          <span style={{ color: "var(--red, #ff1a40)" }}>REDZONE</span> MIRROR
+        </div>
         <p className="apikey-sub">
           Enter your <strong>free</strong> TMDB{" "}
           <strong>Read Access Token</strong> to get started.

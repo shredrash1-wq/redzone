@@ -50,6 +50,7 @@ import {
   getFailoverSource,
   setFailoverSource,
   clearFailoverSource,
+  isElectron,
 } from "../utils/storage";
 import {
   fetchMovieRating,
@@ -1014,12 +1015,46 @@ export default function MoviePage({
                 </button>
               </div>
             )}
-            <webview
-              ref={webviewRef}
-              src={
-                pipOpen
-                  ? "about:blank"
-                  : sourceIsAsync(playerSource)
+            {isElectron ? (
+              <webview
+                ref={webviewRef}
+                src={
+                  pipOpen
+                    ? "about:blank"
+                    : sourceIsAsync(playerSource)
+                      ? resolvedPlayerUrl || "about:blank"
+                      : getSourceUrl(
+                          playerSource,
+                          "movie",
+                          item.id,
+                          null,
+                          null,
+                          {},
+                          playerAccentColor,
+                          playerSubLang,
+                        )
+                }
+                partition="persist:player"
+                allowpopups="false"
+                sandbox="allow-scripts allow-same-origin allow-forms"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  visibility:
+                    webviewLoading ||
+                    (sourceIsAsync(playerSource) && !resolvedPlayerUrl)
+                      ? "hidden"
+                      : "visible",
+                }}
+              />
+            ) : (
+              <iframe
+                ref={webviewRef}
+                src={
+                  sourceIsAsync(playerSource)
                     ? resolvedPlayerUrl || "about:blank"
                     : getSourceUrl(
                         playerSource,
@@ -1031,23 +1066,20 @@ export default function MoviePage({
                         playerAccentColor,
                         playerSubLang,
                       )
-              }
-              partition="persist:player"
-              allowpopups="false"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                border: "none",
-                visibility:
-                  webviewLoading ||
-                  (sourceIsAsync(playerSource) && !resolvedPlayerUrl)
-                    ? "hidden"
-                    : "visible",
-              }}
-            />
+                }
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                allowFullScreen
+                onLoad={() => setWebviewLoading(false)}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  background: "#000",
+                }}
+              />
+            )}
             {/* Left-side overlay button group, flex row, no fixed px offsets */}
             <div className="player-overlay-group">
               <button

@@ -5,11 +5,11 @@
 export const ACCENT_PRESETS = [
   {
     id: "red",
-    label: "Red",
-    color: "#e50914",
-    color2: "#ff1a24",
-    dim: "rgba(229,9,20,0.15)",
-    glow: "0 0 30px rgba(229,9,20,0.3)",
+    label: "Redzone",
+    color: "#ff133d",
+    color2: "#ff3355",
+    dim: "rgba(255, 19, 61, 0.18)",
+    glow: "0 0 32px rgba(255, 19, 61, 0.55)",
   },
   {
     id: "blue",
@@ -72,17 +72,17 @@ export function applyAccentColor(presetId) {
 export const THEME_PRESETS = [
   {
     id: "dark",
-    label: "Dark",
-    description: "Default dark theme",
+    label: "Redzone Dark",
+    description: "Signature REDZONE MIRROR obsidian & crimson theme",
     vars: {
-      "--bg": "#0a0a0a",
-      "--surface": "#111111",
-      "--surface2": "#1a1a1a",
-      "--surface3": "#222222",
-      "--border": "#2a2a2a",
-      "--text": "#f0f0f0",
-      "--text2": "#c0c0c0",
-      "--text3": "#909090",
+      "--bg": "#07080b",
+      "--surface": "#0d1017",
+      "--surface2": "#131722",
+      "--surface3": "#1b2130",
+      "--border": "rgba(255, 30, 60, 0.16)",
+      "--text": "#f5f7fa",
+      "--text2": "#9ba3b8",
+      "--text3": "#636d83",
     },
   },
   {

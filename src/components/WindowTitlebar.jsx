@@ -54,19 +54,50 @@ export default function WindowTitlebar() {
       {/* App name / logo */}
       <div
         style={{
-          paddingLeft: 12, // sit over the sidebar
+          paddingLeft: 14,
           fontSize: 12,
-          fontWeight: 700,
-          letterSpacing: 2,
-          color: "var(--text3)",
+          fontWeight: 800,
+          letterSpacing: 2.5,
           fontFamily: "var(--font-display)",
           flexGrow: 1,
           overflow: "hidden",
           whiteSpace: "nowrap",
           textOverflow: "ellipsis",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
         }}
       >
-        STREAMBERT
+        <span
+          style={{
+            width: 7,
+            height: 7,
+            borderRadius: "50%",
+            background: "var(--red, #ff1a40)",
+            boxShadow: "0 0 8px #ff1a40",
+            display: "inline-block",
+          }}
+        />
+        <span style={{ color: "var(--red, #ff1a40)", textShadow: "0 0 12px rgba(255,26,64,0.7)" }}>
+          REDZONE
+        </span>
+        <span style={{ color: "#e2e8f0", letterSpacing: 3, fontWeight: 600 }}>
+          MIRROR
+        </span>
+        <span
+          style={{
+            fontSize: 9,
+            padding: "1px 5px",
+            borderRadius: 3,
+            background: "rgba(255, 26, 64, 0.15)",
+            border: "1px solid rgba(255, 26, 64, 0.35)",
+            color: "var(--red, #ff1a40)",
+            letterSpacing: 1,
+            marginLeft: 4,
+          }}
+        >
+          v2.6
+        </span>
       </div>
 
       {/* Window control buttons, NOT draggable */}

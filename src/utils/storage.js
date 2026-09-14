@@ -100,12 +100,12 @@ export const STORAGE_KEYS = {
   GAMEPAD_ENABLED: "gamepadEnabled",
 };
 
-export const getApiKey = () => storage.get(STORAGE_KEYS.API_KEY);
+export const DEFAULT_TMDB_API_KEY =
+  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0ODczMjVmZWFlZDY2MDYwMmZjZWRkYzcwMjQ1NmRiZSIsIm5iZiI6MTc4OTM1NDIwOS43MTksInN1YiI6IjZhYTc2MGUxYzA2NDI4ODIxYTY0YjA4YSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.3wPJeBMr1nsv0A0cubXFrQr98I4dK7pqHjgOXjYbdlI";
+
+export const getApiKey = () => storage.get(STORAGE_KEYS.API_KEY) || DEFAULT_TMDB_API_KEY;
 
 // ── Source failover cache ────────────────────────────────────────────────────
-// AllManga doesn't always have every episode; rather than nag the user every
-// time, remember the working alternate source per (tmdbId, season, ep, dub).
-// Max 200 entries
 const FAILOVER_CACHE_MAX = 200;
 
 export const getFailoverSource = (epKey) => {
@@ -115,7 +115,6 @@ export const getFailoverSource = (epKey) => {
 
 export const setFailoverSource = (epKey, sourceId) => {
   const cache = storage.get(STORAGE_KEYS.SOURCE_FAILOVER_CACHE) || {};
-  // Evict oldest entries when at capacity (insertion order via Object.keys)
   const keys = Object.keys(cache);
   if (keys.length >= FAILOVER_CACHE_MAX) {
     const evict = keys.slice(0, keys.length - FAILOVER_CACHE_MAX + 1);
@@ -134,14 +133,11 @@ export const clearFailoverSource = (epKey) => {
 };
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
-
-/** True when running inside Electron (contextBridge exposed). */
 export const isElectron = typeof window !== "undefined" && !!window.electron;
 
-/** Format a byte count into a human-readable string. */
 export function formatBytes(bytes) {
   if (bytes === null || bytes === undefined) return "…";
-  if (bytes === -1) return null; // unavailable
+  if (bytes === -1) return null;
   if (bytes === 0) return "0 B";
   if (bytes < 1024) return bytes + " B";
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -150,27 +146,28 @@ export function formatBytes(bytes) {
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 }
 
-// ── Secure storage for sensitive keys ────────────────────────────────────────
-// Uses Electron safeStorage (OS keychain / DPAPI / libsecret).
-// All methods are async. Non-Electron environments silently fall back to no-op.
-//
-// Sensitive keys managed here (NOT stored in localStorage):
-//   "apikey"      - TMDB API key
-//   "subdlApiKey" - SubDL API key
-//   "wyzieApiKey" - Wyzie API key
-
 const _isElectronSecure =
   typeof window !== "undefined" && !!window.electron?.secureGet;
 
 export const secureStorage = {
   /** Read an encrypted value. Returns null if not set. */
   async get(key) {
-    if (!_isElectronSecure) return null;
+    if (key === "apikey") {
+      const custom = storage.get(STORAGE_KEYS.API_KEY);
+      if (custom) return custom;
+      if (_isElectronSecure) {
+        const val = await window.electron.secureGet(key);
+        if (val) return val;
+      }
+      return DEFAULT_TMDB_API_KEY;
+    }
+    if (!_isElectronSecure) return storage.get(key);
     return window.electron.secureGet(key);
   },
 
   /** Write an encrypted value. Pass null/empty to delete. */
   async set(key, value) {
+    storage.set(key, value ?? "");
     if (!_isElectronSecure) return;
     return window.electron.secureSet(key, value ?? "");
   },

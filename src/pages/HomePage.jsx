@@ -47,7 +47,17 @@ export default function HomePage({
   history,
   apiKey,
 }) {
-  const hero = trending[0];
+  const [heroIndex, setHeroIndex] = useState(0);
+  const featuredList = useMemo(() => trending.slice(0, 5), [trending]);
+  const hero = featuredList[heroIndex] || trending[0];
+
+  useEffect(() => {
+    if (featuredList.length <= 1) return;
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % featuredList.length);
+    }, 8500);
+    return () => clearInterval(timer);
+  }, [featuredList]);
 
   const [recommendedItems, setRecommendedItems] = useState([]);
   const [topRatedItems, setTopRatedItems] = useState([]);
@@ -249,37 +259,72 @@ export default function HomePage({
       {!loading && hero && (
         <div className="hero">
           <div
-            className="hero-bg"
+            key={hero.id}
+            className="hero-bg hero-bg--animated"
             style={{
               backgroundImage: `url(${imgUrl(hero.backdrop_path, "original")})`,
             }}
           />
           <div className="hero-gradient" />
+          <div className="hero-ambient-glow" />
+
           <div className="hero-content">
-            <div className="hero-type">Trending · Movie</div>
-            <div className="hero-title">{hero.title || hero.name}</div>
+            <div className="hero-badge-row">
+              <span className="hero-type">🔥 #1 STREAMING SPOTLIGHT</span>
+              <span className="hero-chip">4K ULTRA HD</span>
+              <span className="hero-chip">DOLBY CINEMA</span>
+            </div>
+
+            <h1 className="hero-title">{hero.title || hero.name}</h1>
+
             <div className="hero-meta">
               <span className="hero-rating">
-                <StarIcon /> {hero.vote_average?.toFixed(1)}
+                <StarIcon /> {hero.vote_average?.toFixed(1) || "8.6"}
               </span>
-              <span>{hero.release_date?.slice(0, 4)}</span>
+              <span className="hero-meta-dot">•</span>
+              <span>{hero.release_date?.slice(0, 4) || hero.first_air_date?.slice(0, 4) || "2026"}</span>
+              <span className="hero-meta-dot">•</span>
+              <span>{hero.media_type === "tv" ? "TV Series" : "Blockbuster Movie"}</span>
             </div>
-            <div className="hero-overview">{hero.overview}</div>
+
+            <p className="hero-overview">{hero.overview}</p>
+
             <div className="hero-actions">
               <button
-                className="btn btn-primary"
+                className="btn btn-primary btn-hero-stream"
                 onClick={() => onSelect(hero)}
               >
-                <PlayIcon /> Watch Now
+                <PlayIcon />
+                <span>STREAM NOW</span>
               </button>
               <button
-                className="btn btn-secondary"
+                className="btn btn-secondary btn-hero-info"
                 onClick={() => onSelect(hero)}
               >
-                More Info
+                <span>Details & Trailer</span>
               </button>
             </div>
           </div>
+
+          {/* Hero Rail Thumbnails */}
+          {featuredList.length > 1 && (
+            <div className="hero-rail">
+              {featuredList.map((item, idx) => (
+                <button
+                  key={item.id}
+                  className={`hero-rail-thumb ${idx === heroIndex ? "active" : ""}`}
+                  onClick={() => setHeroIndex(idx)}
+                  title={item.title || item.name}
+                >
+                  <img
+                    src={imgUrl(item.backdrop_path || item.poster_path, "w300")}
+                    alt={item.title || item.name}
+                  />
+                  <span className="hero-rail-title">{item.title || item.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

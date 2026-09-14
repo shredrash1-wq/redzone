@@ -1,12 +1,21 @@
-export const StreambertLogo = ({ style }) => (
+export const RedzoneMirrorLogo = ({ style }) => (
   <img
     src="./logo.svg"
-    alt="Streambert"
+    alt="REDZONE MIRROR"
     width="44"
     height="44"
-    style={{ width: "100%", height: "100%", display: "block", ...style }}
+    style={{
+      width: "100%",
+      height: "100%",
+      display: "block",
+      filter: "drop-shadow(0 0 10px rgba(255, 26, 64, 0.6))",
+      transition: "filter 0.3s ease, transform 0.3s ease",
+      ...style,
+    }}
   />
 );
+
+export const StreambertLogo = RedzoneMirrorLogo;
 
 export const SearchIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

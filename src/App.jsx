@@ -10,7 +10,12 @@ import {
 import ErrorBoundary from "./components/ErrorBoundary";
 import KeyboardShortcutsModal from "./components/KeyboardShortcutsModal";
 import WindowTitlebar from "./components/WindowTitlebar";
-import { storage, secureStorage, STORAGE_KEYS } from "./utils/storage";
+import {
+  storage,
+  secureStorage,
+  STORAGE_KEYS,
+  DEFAULT_TMDB_API_KEY,
+} from "./utils/storage";
 import {
   applyAccentColor,
   applyTheme,
@@ -33,6 +38,8 @@ import SetupScreen from "./components/SetupScreen";
 import CloseConfirmModal from "./components/CloseConfirmModal";
 import UpdateModal from "./components/UpdateModal";
 import { useGamepadNav } from "./utils/useGamepadNav";
+import GuestLoginPage from "./pages/GuestLoginPage";
+import { StreambertLogo } from "./components/Icons";
 
 // Lazy-loaded pages: each chunk is only downloaded when the user first visits
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -47,11 +54,14 @@ import {
 } from "./utils/updates";
 
 export default function App() {
-  // apiKey loaded async from secure storage (OS keychain)
-  const [apiKey, setApiKey] = useState(null);
-  const [apiKeyLoaded, setApiKeyLoaded] = useState(false);
-  const [skipped, setSkipped] = useState(false);
-  const [apiKeyStatus, setApiKeyStatus] = useState("checking"); // 'checking' | 'ok' | 'invalid_token' | 'unreachable'
+  const [user, setUser] = useState(() => storage.get("guest_user") || null);
+  // apiKey loaded from storage or immediately defaults to user's pre-configured TMDB token
+  const [apiKey, setApiKey] = useState(
+    () => storage.get(STORAGE_KEYS.API_KEY) || DEFAULT_TMDB_API_KEY,
+  );
+  const [apiKeyLoaded, setApiKeyLoaded] = useState(true);
+  const [skipped, setSkipped] = useState(true);
+  const [apiKeyStatus, setApiKeyStatus] = useState("ok"); // 'checking' | 'ok' | 'invalid_token' | 'unreachable'
   const [page, setPage] = useState(() => storage.get("startPage") || "home");
   const [selected, setSelected] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -985,16 +995,155 @@ export default function App() {
     [navigate],
   );
 
-  if (!apiKeyLoaded) return null; // wait for secure storage to resolve
-  if (!apiKey && !skipped)
-    return <SetupScreen onSave={saveApiKey} onSkip={() => setSkipped(true)} />;
+  const handleLogout = useCallback(() => {
+    storage.remove("guest_user");
+    setUser(null);
+  }, []);
 
+  if (!user) {
+    return (
+      <GuestLoginPage
+        onLogin={(userData) => {
+          storage.set("guest_user", userData);
+          setUser(userData);
+        }}
+      />
+    );
+  }
+
+  const effectiveApiKey = apiKey || DEFAULT_TMDB_API_KEY;
   const hasCustomTitlebar = platform === "win32" || platform === "linux";
 
   return (
     <ErrorBoundary>
-      {hasCustomTitlebar && <WindowTitlebar />}
-      <div>
+      {/* Mobile Top Navigation Header */}
+      <header className="mobile-top-bar">
+        <div className="mobile-top-logo" onClick={() => navigate("home")}>
+          <div className="mobile-logo-gem">
+            <StreambertLogo />
+          </div>
+          <div className="mobile-top-text">
+            <span className="mobile-top-title">REDZONE</span>
+            <span className="mobile-top-tag">MIRROR</span>
+          </div>
+        </div>
+        <div className="mobile-top-actions">
+          <button
+            className="mobile-icon-btn"
+            onClick={() => setShowSearch(true)}
+            aria-label="Search"
+            title="Search movies & shows"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+          <button
+            className="mobile-user-chip"
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Logged in as "${user?.username}". Do you want to switch user or logout?`,
+                )
+              ) {
+                handleLogout();
+              }
+            }}
+            title="Click to logout or switch profile"
+          >
+            <span className="mobile-user-avatar">{user?.avatar || "👤"}</span>
+            <span className="mobile-user-name">
+              {user?.username || "Guest"}
+            </span>
+          </button>
+        </div>
+      </header>
+
+      {hasCustomTitlebar ? (
+        <WindowTitlebar />
+      ) : (
+        <header className="desktop-web-header">
+          <div className="desktop-web-brand" onClick={() => navigate("home")}>
+            <div className="desktop-web-logo-wrap">
+              <StreambertLogo />
+            </div>
+            <div className="desktop-web-brand-text">
+              <span className="desktop-web-title">REDZONE</span>
+              <span className="desktop-web-tag">MIRROR</span>
+            </div>
+          </div>
+
+          <nav className="desktop-web-nav">
+            <button
+              className={`desktop-nav-link ${page === "home" ? "active" : ""}`}
+              onClick={() => navigate("home")}
+            >
+              <span>🏠</span> Home
+            </button>
+            <button
+              className={`desktop-nav-link ${page === "history" ? "active" : ""}`}
+              onClick={() => navigate("history")}
+            >
+              <span>📚</span> Library
+            </button>
+            <button
+              className={`desktop-nav-link ${page === "downloads" ? "active" : ""}`}
+              onClick={() => navigate("downloads")}
+            >
+              <span>⬇</span> Downloads
+            </button>
+            <button
+              className={`desktop-nav-link ${page === "settings" ? "active" : ""}`}
+              onClick={() => navigate("settings")}
+            >
+              <span>⚙</span> Settings
+            </button>
+          </nav>
+
+          <div className="desktop-web-right">
+            <button
+              className="desktop-search-pill"
+              onClick={() => setShowSearch(true)}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <span>Search movies, shows…</span>
+              <kbd className="desktop-search-kbd">⌘K</kbd>
+            </button>
+
+            <div
+              className="desktop-profile-card"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Logged in as "${user?.username}". Do you want to switch or log out?`,
+                  )
+                ) {
+                  handleLogout();
+                }
+              }}
+              title="Click to switch profile or log out"
+            >
+              <div className="desktop-profile-avatar">{user?.avatar || "👤"}</div>
+              <div className="desktop-profile-details">
+                <span className="desktop-profile-name">{user?.username || "Guest"}</span>
+                <span className="desktop-profile-badge">VIP GUEST</span>
+              </div>
+            </div>
+          </div>
+        </header>
+      )}
+      <div className="app-body-layout">
         <Sidebar
           page={page}
           onNavigate={navigate}
@@ -1006,6 +1155,8 @@ export default function App() {
           canGoBack={navStack.length > 0}
           onBack={navigateBack}
           onShowShortcuts={() => setShowShortcuts(true)}
+          user={user}
+          onLogout={handleLogout}
         />
 
         <div className="main">
@@ -1435,6 +1586,80 @@ export default function App() {
         {showShortcuts && (
           <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
         )}
+
+        {/* ── Native App Style Mobile Bottom Dock ── */}
+        <nav className="mobile-dock-bar" aria-label="Mobile Navigation">
+          <button
+            className={`mobile-dock-btn ${page === "home" ? "active" : ""}`}
+            onClick={() => navigate("home")}
+          >
+            <div className="mobile-dock-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <span className="mobile-dock-label">Home</span>
+            {page === "home" && <span className="mobile-dock-dot" />}
+          </button>
+
+          <button
+            className="mobile-dock-btn"
+            onClick={() => setShowSearch(true)}
+          >
+            <div className="mobile-dock-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <span className="mobile-dock-label">Search</span>
+          </button>
+
+          <button
+            className={`mobile-dock-btn ${page === "history" ? "active" : ""}`}
+            onClick={() => navigate("history")}
+          >
+            <div className="mobile-dock-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <span className="mobile-dock-label">Library</span>
+            {page === "history" && <span className="mobile-dock-dot" />}
+          </button>
+
+          <button
+            className={`mobile-dock-btn ${page === "downloads" ? "active" : ""}`}
+            onClick={() => navigate("downloads")}
+          >
+            <div className="mobile-dock-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              {activeDownloadCount > 0 && <span className="mobile-badge-pill">{activeDownloadCount}</span>}
+            </div>
+            <span className="mobile-dock-label">Downloads</span>
+            {page === "downloads" && <span className="mobile-dock-dot" />}
+          </button>
+
+          <button
+            className={`mobile-dock-btn ${page === "settings" ? "active" : ""}`}
+            onClick={() => navigate("settings")}
+          >
+            <div className="mobile-dock-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </div>
+            <span className="mobile-dock-label">Settings</span>
+            {page === "settings" && <span className="mobile-dock-dot" />}
+          </button>
+        </nav>
       </div>
     </ErrorBoundary>
   );

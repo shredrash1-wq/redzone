@@ -100,6 +100,13 @@ const MediaCard = memo(function MediaCard({
               </span>
             </div>
           )}
+          {item.vote_average > 0 && (
+            <div className="card-rating-chip">
+              <span style={{ color: "var(--gold)" }}>★</span>
+              <span>{item.vote_average.toFixed(1)}</span>
+            </div>
+          )}
+
           {ageRating && (
             <div
               className={`card-age-badge${restricted ? " card-age-badge--restricted" : ""}`}
